@@ -6,20 +6,6 @@ def __connect_to_db():
                            db='db_tp', charset='cp1251', use_unicode=True)
 
 
-def execute_select_all(query):
-    connection = __connect_to_db()
-    cursor = connection.cursor()
-    try:
-        cursor.execute(query)
-        result = cursor.fetchall()
-    except Exception as MySQLdb.Error:
-        print(MySQLdb.Error)
-        result = []
-    cursor.close()
-    connection.close()
-    return result
-
-
 def execute_select(query, params):
     connection = __connect_to_db()
     cursor = connection.cursor()
