@@ -12,7 +12,7 @@ def execute_select(query, params):
     try:
         cursor.execute(query, params)
         result = cursor.fetchall()
-    except Exception as MySQLdb.Error:
+    except (Exception,MySQLdb.Error):
         print(MySQLdb.Error)
         result = []
     cursor.close()
@@ -27,10 +27,11 @@ def execute_insert(query, params):
         cursor.execute(query, params)
         entity_id = cursor.lastrowid
         connection.commit()
-    except Exception as MySQLdb.Error:
-        print(MySQLdb.Error)
+    except(Exception, MySQLdb.Error):
+        print("Error insert into database")
         connection.rollback()
-        entity_id = -1
-    cursor.close()
-    connection.close()
+        raise
+    finally:
+        cursor.close()
+        connection.close()
     return entity_id
