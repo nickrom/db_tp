@@ -12,11 +12,12 @@ def execute_select(query, params):
     try:
         cursor.execute(query, params)
         result = cursor.fetchall()
-    except (Exception,MySQLdb.Error):
-        print(MySQLdb.Error)
-        result = []
-    cursor.close()
-    connection.close()
+    except (Exception, MySQLdb.Error):
+        print("Error select into database")
+        raise
+    finally:
+        cursor.close()
+        connection.close()
     return result
 
 
