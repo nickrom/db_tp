@@ -73,18 +73,33 @@ def create():
     if(len(data) < 5):
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
+    optional = [None, 0, 0, 0, 0, 0]
+    for el in optional:
+        data.append(el)
     try:
         parent_id = post_data["parent"]
-        data.append(parent_id)
-        data.append(int(post_data["isApproved"]))
-        data.append(int(post_data["isHighlighted"]))
-        data.append(int(post_data["isEdited"]))
-        data.append(int(post_data["isSpam"]))
+        data[5] = parent_id
+    except KeyError:
+        pass
+    try:
+        data[6] = int(post_data["isApproved"])
+    except KeyError:
+        pass
+    try:
+        data[7] = int(post_data["isHighlighted"])
+    except KeyError:
+        pass
+    try:
+        data[8] = int(post_data["isEdited"])
+    except KeyError:
+        pass
+    try:
+        data[9] = int(post_data["isSpam"])
+    except KeyError:
+        pass
+    try:
         data[10] = int(post_data["isDeleted"])
     except KeyError:
-        optional = [-1, 0, 0, 0, 0, 0]
-        for el in optional:
-            data.append(el)
         pass
     insert_stmt = ('INSERT INTO Posts (date, thread, message, user, forum, parent, isApproved, isHighlighted, isEdited, isSpam, isDeleted)'
                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
