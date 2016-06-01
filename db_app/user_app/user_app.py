@@ -90,6 +90,14 @@ def create():
     return answer
 
 
+@app.route('/details/', methods=['GET'])
+def details():
+    qs = urlparse.urlparse(request.url).query
+    mail = urlparse.parse_qs(qs)
+    user_mail = mail["user"]
+    return jsonify({"code": 0, "response": serialize_user_email(user_mail)})
+
+
 
 
 

@@ -17,6 +17,15 @@ def serialize_forum(forum):
     return json
 
 
+def serialize_forum_user(forum, user):
+    json = {
+        'id': forum[0],
+        'name': forum[1],
+        'short_name': forum[2],
+        'user': user
+    }
+    return json
+
 def serialize_post(post):
     resp = {
         'date': post[1],
@@ -55,21 +64,22 @@ def create():
 
 @app.route('/details/', methods=['GET'])
 def details():
-    qs = urlparse.urlparse(request.url).query
-    req = urlparse.parse_qs(qs)
     data = []
     try:
-        data.append(req["forum"])
+        data.append(request.args.get('forum'))
         select_stmt = ('SELECT * FROM Forums WHERE slug = %s')
         forum = execute_select(select_stmt, data[0])
-        if req.args.get("related") == "user":
-            user_info = serialize_user_email(forum[0][3])
-            forum[0][3] = user_info
-        answer = {"code": 0, "response": serialize_forum(forum[0])}
     except KeyError:
+        print(data)
         answer = {"code": 3, "response": "incorrect request"}
         return jsonify(answer)
     except Exception:
         answer = {"code": 1, "response": "incorrect related"}
         return jsonify(answer)
-    return answer
+    if request.args.get('related') == 'user':
+        user_info = serialize_user_email(forum[0][3])
+        answer = {"code": 0, "response": serialize_forum_user(forum[0], user_info)}
+        print(answer)
+        return jsonify(answer)
+    answer = {"code": 0, "response": serialize_forum(forum[0])}
+    return jsonify(answer)
