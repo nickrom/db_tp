@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import Blueprint, request, jsonify
 from db_app.executor import *
 import urlparse
@@ -24,6 +25,8 @@ def serialize_forum_user(forum, user):
         'short_name': forum[2],
         'user': user
     }
+    print("!!!!!!!!")
+    print(forum[1])
     return json
 
 def serialize_post(post):
@@ -46,7 +49,8 @@ def serialize_post(post):
 
 @app.route('/create/', methods=['POST'])
 def create():
-    data = request.json
+    data = request.get_json()
+    print(data)
     forum_data = []
     try:
         forum_data.append(data["name"])
@@ -70,7 +74,6 @@ def details():
         select_stmt = ('SELECT * FROM Forums WHERE slug = %s')
         forum = execute_select(select_stmt, data[0])
     except KeyError:
-        print(data)
         answer = {"code": 3, "response": "incorrect request"}
         return jsonify(answer)
     except Exception:

@@ -69,3 +69,8 @@ def create():
     user_id = execute_insert(insert_stmt, res)
     answer = jsonify({"code": 0, "response": serialize_unicode_thread(res, user_id)})
     return answer
+
+
+@app.route('/details/', methods=['GET'])
+def details():
+    pass

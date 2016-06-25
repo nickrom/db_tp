@@ -25,7 +25,7 @@ def status():
 @app.route('/clear/', methods=['POST'])
 def clear():
     execute_insert('SET FOREIGN_KEY_CHECKS=0', ())
-    tables = ['Users', 'Threads', 'Forums', 'Posts']
+    tables = ['Users', 'Threads', 'Forums', 'Posts', 'Followers', 'Subscribe']
     for table in tables:
         execute_insert('TRUNCATE TABLE ' + table, ())
     execute_insert('SET FOREIGN_KEY_CHECKS=1', ())

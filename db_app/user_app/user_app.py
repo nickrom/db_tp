@@ -9,7 +9,7 @@ def serialize_user_email(email_user):
     select_stmt = ('SELECT * FROM Users WHERE email = %s')
     user = execute_select(select_stmt, email_user)
     user = user[0]
-    return serialize_user(user, get_subscriptions(user), get_followers(user), get_following(user))
+    return serialize_user(user, get_subscriptions(email_user), get_followers(email_user), get_following(email_user))
 
 
 def serialize_user_id(res):
@@ -24,15 +24,36 @@ def serialize_user_id(res):
 
 
 def get_subscriptions(user):
-    return []
+    select_stmt = ('SELECT thread FROM Subscribe WHERE user = %s')
+    subscriptions = execute_select(select_stmt, user)
+    if (len(subscriptions) == 0):
+        return []
+    res = []
+    for subscription in subscriptions:
+        res.append(subscription)
+    return res
 
 
 def get_followers(user):
-    return []
+    select_stmt = ('SELECT follower_mail FROM Followers WHERE following_mail = %s')
+    followers = execute_select(select_stmt, user)
+    if (len(followers) == 0):
+        return []
+    res = []
+    for follower in followers:
+        res.append(follower[0])
+    return res
 
 
 def get_following(user):
-    return []
+    select_stmt = ('SELECT following_mail FROM Followers WHERE follower_mail = %s')
+    followings = execute_select(select_stmt, user)
+    if (len(followings) == 0):
+        return []
+    res = []
+    for following in followings:
+        res.append(following[0])
+    return res
 
 
 def serialize_user(user, subscriptions, followers, following):
@@ -97,6 +118,40 @@ def details():
     user_mail = mail["user"]
     return jsonify({"code": 0, "response": serialize_user_email(user_mail)})
 
+
+def details_email(email):
+    return jsonify({"code": 0, "response": serialize_user_email(email)})
+
+
+def __parse_follow_request_data(json_data):
+    res = []
+    try:
+        res.append((json_data["follower"]))
+        res.append((json_data["followee"]))
+    except KeyError:
+        res = []
+    return res
+
+
+@app.route('/follow/', methods=['POST'])
+def follow():
+    user_data = request.json
+    res = __parse_follow_request_data(user_data)
+    if(len(res) == 0):
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    select_stmt = ('SELECT follower_mail,following_mail FROM Followers WHERE follower_mail = %s && following_mail = %s')
+    print(res)
+    usr = execute_select(select_stmt, res)
+    if(len(usr) != 0):
+        answer = {"code": 5, "response": "Follower and following already exists"}
+        return jsonify(answer)
+    insert_stmt = (
+        'INSERT INTO Followers (follower_mail, following_mail) '
+        'VALUES (%s, %s)'
+    )
+    execute_insert(insert_stmt, res)
+    return details_email(res[0])
 
 
 
