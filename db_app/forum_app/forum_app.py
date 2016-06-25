@@ -25,8 +25,6 @@ def serialize_forum_user(forum, user):
         'short_name': forum[2],
         'user': user
     }
-    print("!!!!!!!!")
-    print(forum[1])
     return json
 
 def serialize_post(post):

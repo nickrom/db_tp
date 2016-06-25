@@ -31,7 +31,7 @@ CREATE TABLE `Threads` (
     `title` VARCHAR (50) NOT NULL,
     `isClosed` BOOL NOT NULL DEFAULT False,
     `user` VARCHAR (30) NOT NULL,
-    `date` DATETIME NOT NULL,
+    `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `message` TEXT NOT NULL,
     `slug` VARCHAR (50) NOT NULL,
     `isDeleted` BOOL NOT NULL DEFAULT False,
@@ -45,7 +45,7 @@ CREATE TABLE `Threads` (
 
 CREATE TABLE `Posts` (
 	`id` MEDIUMINT(11) NOT NULL AUTO_INCREMENT,
-  `date` DATETIME NOT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `thread` MEDIUMINT(11) NOT NULL,
   `message` TEXT NOT NULL,
   `user` VARCHAR (30) NOT NULL,
