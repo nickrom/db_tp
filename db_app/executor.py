@@ -22,6 +22,21 @@ def execute_select(query, params):
     return result
 
 
+def execute_select1(query):
+    connection = __connect_to_db()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+    except (Exception, MySQLdb.Error):
+        print("Error select into database")
+        raise
+    finally:
+        cursor.close()
+        connection.close()
+    return result
+
+
 def execute_insert(query, params):
     connection = __connect_to_db()
     cursor = connection.cursor()

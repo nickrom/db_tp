@@ -44,7 +44,7 @@ def serialize_thread(thread, thread_id):
 def serialize_thread(thread, user_info, forum_info):
     resp = {
         'date': datetime.datetime.strftime(thread[5], "%Y-%m-%d %H:%M:%S"),
-        'dislikes': thread[9],
+        'dislikes': thread[11],
         'forum': forum_info,
         'id': thread[0],
         'isClosed': bool(thread[3]),
@@ -53,6 +53,7 @@ def serialize_thread(thread, user_info, forum_info):
         'message': thread[6],
         'slug': thread[7],
         'title': thread[2],
+        'posts': thread[9],
         'user': user_info
     }
     return resp
@@ -109,11 +110,7 @@ def details():
     try:
         data.append(request.args.get('thread'))
         select_stmt = ('SELECT * FROM Threads WHERE id = %s')
-        print('DEtaaaails')
-        print(data[0])
         thread = execute_select(select_stmt, data[0])
-        print('DAAAAAAAA')
-        print(thread)
     except KeyError:
         answer = {"code": 3, "response": "incorrect request"}
         return jsonify(answer)
@@ -123,12 +120,13 @@ def details():
     list = request.args.getlist('related')
     user_info = thread[0][4]
     forum_info = thread[0][1]
-    print(user_info)
     for related in list:
         if related == 'user':
             user_info = serialize_user_email(thread[0][4])
-        if related == 'forum':
+        elif related == 'forum':
             forum_info = serialize_forum1(thread[0][1])
-    print(serialize_thread(thread[0], user_info, forum_info))
+        elif related == 'thread':
+            print('Privet')
+            return jsonify({"code":3, "response": "incorrect related"})
     answer = jsonify({"code": 0, "response": serialize_thread(thread[0], user_info, forum_info)})
     return answer
