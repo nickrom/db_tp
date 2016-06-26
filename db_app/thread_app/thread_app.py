@@ -4,8 +4,17 @@ from flask import request, jsonify
 from db_app.executor import *
 from db_app.user_app.user_app import serialize_user_email
 import db_app.forum_app.forum_app
+import urlparse
 
 app = Blueprint('thread_app', __name__)
+
+
+def threads_to_list(posts):
+    resp = []
+    for post in posts:
+        resp.append(serialize_thread1(post[1:], post[0]))
+    print(resp)
+    return resp
 
 
 def serialize_unicode_thread(thread, thread_id):
@@ -25,7 +34,7 @@ def serialize_unicode_thread(thread, thread_id):
     return resp
 
 
-def serialize_thread(thread, thread_id):
+def serialize_thread1(thread, thread_id):
     resp = {
         'date': thread[4].isoformat(sep=' '),
         'forum': thread[0],
@@ -130,3 +139,44 @@ def details():
             return jsonify({"code":3, "response": "incorrect related"})
     answer = jsonify({"code": 0, "response": serialize_thread(thread[0], user_info, forum_info)})
     return answer
+
+
+@app.route('/list/', methods=['GET'])
+def list():
+    qs = urlparse.urlparse(request.url).query
+    req = urlparse.parse_qs(qs)
+    data = []
+    try:
+        data.append(req["user"][0])
+        select_stmt = ('SELECT * FROM Threads WHERE user = %s')
+    except KeyError:
+        try:
+            data.append(req["forum"][0])
+            select_stmt = ('SELECT * FROM Threads WHERE forum = %s')
+        except KeyError:
+            answer = {"code": 3, "response": "incorrect request"}
+            return jsonify(answer)
+    try:
+        data.append(req["since"][0])
+        select_stmt += ' AND date > %s '
+    except KeyError:
+        pass
+    try:
+        #data.append(req["order"])
+        select_stmt += ' ORDER BY date ' + req["order"][0]
+    except KeyError:
+        select_stmt += ' ORDER BY date ' + 'DESC'
+        pass
+    try:
+        data.append(req["limit"][0])
+        data[2]=int(data[2])
+        select_stmt += ' LIMIT %s '
+    except KeyError:
+        pass
+    print('THREAD LIST')
+    print(select_stmt)
+    print(data)
+    threads = execute_select(select_stmt, data)
+    print(threads)
+    answer = {"code": 0, "response": threads_to_list(threads)}
+    return jsonify(answer)
