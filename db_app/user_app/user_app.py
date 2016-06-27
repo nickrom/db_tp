@@ -25,6 +25,15 @@ def serialize_user_id(res):
     return resp
 
 
+def lists_user_by_mails(mails):
+    resp = []
+    for mail in mails:
+        user = execute_select('SELECT * FROM Users WHERE email = %s', mail)
+        resp.append(serialize_user(user[0],get_subscriptions(mail), get_followers(mail), get_following(mail)))
+    print(resp)
+    return resp
+
+
 def get_subscriptions(user):
     select_stmt = ('SELECT thread FROM Subscribe WHERE user = %s')
     subscriptions = execute_select(select_stmt, user)
@@ -118,6 +127,8 @@ def details():
     qs = urlparse.urlparse(request.url).query
     mail = urlparse.parse_qs(qs)
     user_mail = mail["user"]
+    print('DETAILS')
+    print(serialize_user_email(user_mail))
     return jsonify({"code": 0, "response": serialize_user_email(user_mail)})
 
 
@@ -211,6 +222,91 @@ def update():
     print(serialize_user(resp[0], sub, following, followers))
     answer = jsonify({"code": 0, "response": serialize_user(resp[0], sub, following, followers)})
     return answer
+
+
+@app.route('/listFollowers/', methods=['GET'])
+def listFollowers():
+    qs = urlparse.urlparse(request.url).query
+    req = urlparse.parse_qs(qs)
+    data = []
+    count = 0
+    try:
+        data.append(req["user"][0])
+        count += 1
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    select_stmt = 'SELECT follower_mail FROM Followers WHERE following_mail = %s'
+    try:
+        data.append(int(req["since_id"][0]))
+        select_stmt += ' AND id >= %s'
+        count += 1
+    except KeyError:
+        pass
+    try:
+        select_stmt += ' ORDER BY following_mail ' + req["order"][0]
+    except KeyError:
+        select_stmt += ' ORDER BY following_mail ' + 'DESC'
+        pass
+    try:
+        data.append(int(req["limit"][0]))
+        select_stmt += ' LIMIT %s'
+    except KeyError:
+        pass
+    mails = execute_select(select_stmt, data)
+    all_users = lists_user_by_mails(mails[0])
+    return jsonify({"code": 0, "response": all_users})
+
+
+@app.route('/listFollowing/', methods=['GET'])
+def listFollowing():
+    qs = urlparse.urlparse(request.url).query
+    req = urlparse.parse_qs(qs)
+    data = []
+    count = 0
+    try:
+        data.append(req["user"][0])
+        count += 1
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    select_stmt = 'SELECT following_mail FROM Followers WHERE follower_mail = %s'
+    try:
+        data.append(int(req["since_id"][0]))
+        select_stmt += ' AND id >= %s'
+        count += 1
+    except KeyError:
+        pass
+    try:
+        select_stmt += ' ORDER BY follower_mail ' + req["order"][0]
+    except KeyError:
+        select_stmt += ' ORDER BY follower_mail ' + 'DESC'
+        pass
+    try:
+        data.append(int(req["limit"][0]))
+        select_stmt += ' LIMIT %s'
+    except KeyError:
+        pass
+    mails = execute_select(select_stmt, data)
+    all_users = lists_user_by_mails(mails[0])
+    return jsonify({"code": 0, "response": all_users})
+
+
+@app.route('/unfollow/', methods=['POST'])
+def unfollow():
+    user_data = request.json
+    data = []
+    try:
+        data.append(user_data["follower"])
+        data.append(user_data["followee"])
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    delete_stmt = ('DELETE FROM Followers WHERE follower_mail = % s AND following_mail = % s')
+    execute_insert(delete_stmt, data)
+    print('UNFOLLOW')
+    print(data[0])
+    return jsonify({"code": 0, "response": serialize_user_email(data[0])})
 
 
 
