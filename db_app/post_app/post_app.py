@@ -3,7 +3,6 @@ from flask import request, jsonify
 from werkzeug.exceptions import BadRequest
 from db_app.executor import *
 import urlparse
-from db_app.user_app.user_app import serialize_user_email
 import db_app.forum_app.forum_app
 import db_app.thread_app.thread_app
 
@@ -175,7 +174,7 @@ def details():
     thread_info = post[0][2]
     for related in list:
         if related == 'user':
-            user_info = serialize_user_email(post[0][4])
+            user_info = db_app.user_app.user_app.serialize_user_email(post[0][4])
         if related == 'forum':
             forum_info = db_app.thread_app.thread_app.serialize_forum1(post[0][5])
         if related == 'thread':

@@ -64,7 +64,8 @@ def serialize_thread(thread, user_info, forum_info):
         'slug': thread[7],
         'title': thread[2],
         'posts': thread[9],
-        'user': user_info
+        'user': user_info,
+        'points': thread[12]
     }
     return resp
 
@@ -138,6 +139,8 @@ def details():
         elif related == 'thread':
             print('Privet')
             return jsonify({"code":3, "response": "incorrect related"})
+    print("Details")
+    print(serialize_thread(thread[0], user_info, forum_info))
     answer = jsonify({"code": 0, "response": serialize_thread(thread[0], user_info, forum_info)})
     return answer
 
@@ -311,3 +314,88 @@ def close():
     execute_insert(update_stmt, thread_id)
     answer = {"code": 0, "response": thread_id}
     return jsonify(answer)
+
+
+@app.route('/update/', methods=['POST'])
+def update():
+    data = request.json
+    up_data = []
+    try:
+        up_data.append(data["message"])
+        up_data.append(data["slug"])
+        up_data.append(data["thread"])
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    update_stmt = ('UPDATE Threads SET message = %s, slug = %s WHERE id = %s')
+    ins_id = execute_insert(update_stmt, up_data)
+    answer = {"code": 0, "response": ins_id}
+    return jsonify(answer)
+
+
+@app.route('/vote/', methods=['POST'])
+def vote():
+    data = request.json
+    vote_data = []
+    upd_stmt = ()
+    try:
+        vote_data.append(data["vote"])
+        vote_data.append(data["thread"])
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    if(vote_data[0] == 1):
+        upd_stmt = ('UPDATE Threads SET likes = likes + 1, points = points + 1 WHERE id = %s')
+    if(vote_data[0] == -1):
+        upd_stmt = ('UPDATE Threads SET dislikes = dislikes + 1, points = points - 1 WHERE id = %s')
+    upd_id = execute_insert(upd_stmt, vote_data[1])
+    answer = {"code": 0, "response": upd_id}
+    return jsonify(answer)
+
+
+@app.route('/open/', methods=['POST'])
+def open():
+    thread_data = request.json
+    try:
+        thread_id = thread_data["thread"]
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    update_stmt = ('UPDATE Threads SET isClosed = 0 WHERE id = %s')
+    execute_insert(update_stmt, thread_id)
+    answer = {"code": 0, "response": thread_id}
+    return jsonify(answer)
+
+
+@app.route('/subscribe/', methods=['POST'])
+def subscribe():
+    data = request.json
+    sub_data = []
+    try:
+        sub_data.append(data["user"])
+        sub_data.append(data["thread"])
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    print(sub_data)
+    ins_stmt = 'INSERT INTO Subscribe (user, thread) VALUES (%s, %s)'
+    ins_id = execute_insert(ins_stmt, sub_data)
+    answer = {"code": 0, "response": {"thread": sub_data[1], "user": sub_data[0]}}
+    return jsonify(answer)
+
+
+@app.route('/unsubscribe/', methods=['POST'])
+def unsubscribe():
+    data = request.json
+    sub_data = []
+    try:
+        sub_data.append(data["user"])
+        sub_data.append(data["thread"])
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    ins_stmt = 'DELETE FROM Subscribe WHERE thread = %s AND user = %s'
+    ins_id = execute_insert(ins_stmt, sub_data)
+    answer = {"code": 0, "response": ins_id}
+    return jsonify(answer)
+

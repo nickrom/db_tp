@@ -38,6 +38,7 @@ CREATE TABLE `Threads` (
     `posts` MEDIUMINT(11) DEFAULT 0,
     `likes` MEDIUMINT(11) DEFAULT 0,
     `dislikes` MEDIUMINT(11) DEFAULT 0,
+    `points` MEDIUMINT(11) DEFAULT 0,
     PRIMARY KEY (`id`),
     CONSTRAINT FOREIGN KEY (`forum`) REFERENCES `Forums` (`slug`) ON DELETE CASCADE,
     CONSTRAINT FOREIGN KEY (`user`) REFERENCES `Users` (`email`) ON DELETE CASCADE

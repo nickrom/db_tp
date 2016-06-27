@@ -1,5 +1,7 @@
 from flask import jsonify, Blueprint
 from flask import request
+import db_app
+
 from db_app.executor import *
 import urlparse
 
@@ -30,7 +32,7 @@ def get_subscriptions(user):
         return []
     res = []
     for subscription in subscriptions:
-        res.append(subscription)
+        res.append(subscription[0])
     return res
 
 
@@ -152,6 +154,63 @@ def follow():
     )
     execute_insert(insert_stmt, res)
     return details_email(res[0])
+
+
+@app.route('/listPosts/', methods=['GET'])
+def listPosts():
+    qs = urlparse.urlparse(request.url).query
+    req = urlparse.parse_qs(qs)
+    data = []
+    try:
+        data.append(req["user"][0])
+    except KeyError:
+        answer = {"code": 3, "response": "invalid json"}
+        return jsonify(answer)
+    select_stmt = ('SELECT * FROM Posts WHERE user = %s')
+    try:
+        data.append(req["since"][0])
+        select_stmt += ' AND date > %s '
+    except KeyError:
+        pass
+    try:
+        select_stmt += ' ORDER BY date ' + req["order"][0]
+    except KeyError:
+        select_stmt += ' ORDER BY date ' + 'DESC'
+        pass
+    try:
+        data.append(int(req["limit"][0]))
+        select_stmt += ' LIMIT %s '
+    except KeyError:
+        pass
+    posts = execute_select(select_stmt, data)
+    return jsonify({"code": 0, "response": db_app.post_app.post_app.posts_to_list(posts)})
+
+
+@app.route('/updateProfile/', methods=['POST'])
+def update():
+    user_data = request.json
+    res = []
+    try:
+        res.append(user_data["about"])
+        res.append(user_data["name"])
+        res.append(user_data["user"])
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    update_stmt = ('UPDATE Users SET about = %s, name = %s WHERE email = %s')
+    print('UPDATE USER')
+    print(update_stmt)
+    print(res)
+    execute_insert(update_stmt, res)
+    select_stmt = ('SELECT * FROM Users WHERE email = %s')
+    resp = execute_select(select_stmt, res[2])
+    sub = get_subscriptions(resp[0][4])
+    following = get_following(resp[0][4])
+    followers = get_followers(resp[0][4])
+    print('UPD USER')
+    print(serialize_user(resp[0], sub, following, followers))
+    answer = jsonify({"code": 0, "response": serialize_user(resp[0], sub, following, followers)})
+    return answer
 
 
 

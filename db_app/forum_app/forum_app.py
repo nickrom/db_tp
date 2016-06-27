@@ -84,3 +84,5 @@ def details():
         return jsonify(answer)
     answer = {"code": 0, "response": serialize_forum(forum[0])}
     return jsonify(answer)
+
+
