@@ -2,9 +2,9 @@ import datetime
 from flask import Blueprint
 from flask import request, jsonify
 from db_app.executor import *
-from db_app.post_app.post_app import posts_to_list
 from db_app.user_app.user_app import serialize_user_email
 import db_app.forum_app.forum_app
+from db_app.global_func import posts_to_list
 import urlparse
 
 app = Blueprint('thread_app', __name__)
@@ -13,7 +13,7 @@ app = Blueprint('thread_app', __name__)
 def threads_to_list(posts):
     resp = []
     for post in posts:
-        resp.append(serialize_thread1(post[1:], post[0]))
+        resp.append(serialize_thread(post, post[4], post[1]))
     print(resp)
     return resp
 
@@ -28,6 +28,7 @@ def serialize_unicode_thread(thread, thread_id):
         'isDeleted': bool(thread[7]),
         'likes': thread[9],
         'message': thread[5],
+        #'points': thread[9]-thread[8],
         'slug': thread[6],
         'title': thread[1],
         'user': thread[3]
@@ -166,7 +167,6 @@ def list():
     except KeyError:
         pass
     try:
-        #data.append(req["order"])
         select_stmt += ' ORDER BY date ' + req["order"][0]
     except KeyError:
         select_stmt += ' ORDER BY date ' + 'DESC'
@@ -389,8 +389,8 @@ def unsubscribe():
     data = request.json
     sub_data = []
     try:
-        sub_data.append(data["user"])
         sub_data.append(data["thread"])
+        sub_data.append(data["user"])
     except KeyError:
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
