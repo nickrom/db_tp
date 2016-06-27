@@ -2,6 +2,7 @@ import datetime
 from flask import Blueprint
 from flask import request, jsonify
 from db_app.executor import *
+from db_app.post_app.post_app import posts_to_list
 from db_app.user_app.user_app import serialize_user_email
 import db_app.forum_app.forum_app
 import urlparse
@@ -179,4 +180,134 @@ def list():
     threads = execute_select(select_stmt, data)
     print(threads)
     answer = {"code": 0, "response": threads_to_list(threads)}
+    return jsonify(answer)
+
+
+@app.route('/listPosts/', methods=['GET'])
+def listPosts():
+    qs = urlparse.urlparse(request.url).query
+    req = urlparse.parse_qs(qs)
+    data = []
+    try:
+        data.append(req["thread"][0]) #0
+    except KeyError:
+        answer = {"code": 3, "response": "incorrect request"}
+        return jsonify(answer)
+    select_stmt = ('SELECT * FROM Posts WHERE thread = %s')
+    try:
+        data.append(req["since"][0]) #1
+        select_stmt += ' AND date > %s '
+    except KeyError:
+        pass
+    try:
+        sort = req["sort"][0]
+    except KeyError:
+        sort = 'flat'
+    try:
+        order = req["order"][0]
+    except KeyError:
+        order = 'desc'
+        pass
+    try:
+        limit = req["limit"][0] #2???
+        limit = int(limit)
+    except KeyError:
+        limit = None
+        pass
+    select_stmt += ' ORDER BY date '
+    if sort == 'flat':
+        select_stmt += order
+        if limit:
+            select_stmt += ' LIMIT %s'
+            data.append(limit)
+    print(select_stmt)
+    print(data)
+    posts = execute_select(select_stmt, data)
+    if sort in {'tree', 'parent_tree'}:
+        cats = {}
+        for x in posts:
+            print(x)
+            if x[6] is None:
+                try:
+                    cats['root'].append(x)
+                except KeyError:
+                    cats['root'] = [x]
+            else:
+                try:
+                    cats[x[6]].append(x)
+                except:
+                    cats[x[6]] = [x]
+        if sort == 'parent_tree':
+            cats['root'] = cats['root'][:limit]
+        if order == 'desc':
+            cats['root'].reverse()
+        result = []
+        root_h = ['root']
+        while cats[root_h[-1]]:
+            curr_ell = cats[root_h[-1]][0]
+            result.append(curr_ell)
+            del cats[root_h[-1]][0]
+            if curr_ell[0] in cats and cats[curr_ell[0]]:
+                root_h.append(curr_ell[0])
+            elif not cats[root_h[-1]]:
+                while root_h and not cats[root_h[-1]]:
+                    root_h = root_h[:-1]
+                if not root_h:
+                    break
+            if sort == 'tree' and len(result) >= limit:
+                break
+        posts = result
+    answer = {"code": 0, "response": posts_to_list(posts)}
+    return jsonify(answer)
+
+
+@app.route('/remove/', methods=['POST'])
+def remove():
+    data = request.json
+    rem_data = []
+    try:
+        rem_data.append(data["thread"])
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    upd_stmt = ('UPDATE Threads SET isDeleted = 1, posts = 0 WHERE id = %s')
+    execute_insert(upd_stmt, rem_data[0])
+    upd_stmt = ('UPDATE Posts SET isDeleted = 1 WHERE thread = %s')
+    execute_insert(upd_stmt, rem_data[0])
+    answer = {"code": 0, "response": rem_data[0]}
+    return jsonify(answer)
+
+
+@app.route('/restore/', methods=['POST'])
+def restore():
+    data = request.json
+    rem_data = []
+    try:
+        rem_data.append(data["thread"])
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    upd_stmt = ('UPDATE Posts SET isDeleted = 0 WHERE thread = %s')
+    execute_insert(upd_stmt, rem_data[0])
+    num = execute_select('SELECT * FROM Posts WHERE thread = %s', rem_data[0])
+    upd_stmt = ('UPDATE Threads SET isDeleted = 0, posts = %s WHERE id = %s')
+    ans = execute_insert(upd_stmt, [len(num), rem_data[0]])
+    print('restore')
+    print(rem_data[0])
+    print(num)
+    answer = {"code": 0, "response": rem_data[0]}
+    return jsonify(answer)
+
+
+@app.route('/close/', methods=['POST'])
+def close():
+    thread_data = request.json
+    try:
+        thread_id = thread_data["thread"]
+    except KeyError:
+        answer = {"code": 2, "response": "invalid json"}
+        return jsonify(answer)
+    update_stmt = ('UPDATE Threads SET isClosed = 1 WHERE id = %s')
+    execute_insert(update_stmt, thread_id)
+    answer = {"code": 0, "response": thread_id}
     return jsonify(answer)
