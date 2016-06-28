@@ -21,7 +21,7 @@ def execute_select(query, params):
         print('WORK EXECUTE: ')
         print(query)
         print(params)
-        print('_____________')
+        print('___________')
         cursor.execute(query, params)
         result = cursor.fetchall()
     except (Exception, MySQLdb.Error):
