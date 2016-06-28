@@ -120,7 +120,7 @@ def create():
     )
     user_id = execute_insert(insert_stmt, res)
     select_stmt = ('SELECT id, email, about, isAnonymous, name, username FROM Users WHERE id = %s')
-    resp = execute_select(select_stmt, user_id)
+    resp = execute_select(select_stmt, [int(user_id)])
     res.append(resp[0][0])
     answer = jsonify({"code": 0, "response": serialize_user_id(res)})
     return answer
