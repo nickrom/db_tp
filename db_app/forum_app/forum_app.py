@@ -52,9 +52,11 @@ def create():
 @app.route('/details/', methods=['GET'])
 def details():
     data = []
+    print('Forum/details')
     try:
         data.append(request.args.get('forum'))
         select_stmt = ('SELECT * FROM Forums WHERE slug = %s')
+        print(data[0])
         forum = execute_select(select_stmt, data[0])
         if len(forum) == 0 :
             return jsonify({"code":0, "response": []})
@@ -66,6 +68,9 @@ def details():
         return jsonify(answer)
     if request.args.get('related') == 'user':
         user_info = serialize_user_email(forum[0][3])
+        print(forum[0])
+        print(user_info)
+        print(serialize_forum_user(forum[0], user_info))
         answer = {"code": 0, "response": serialize_forum_user(forum[0], user_info)}
         print(answer)
         return jsonify(answer)
