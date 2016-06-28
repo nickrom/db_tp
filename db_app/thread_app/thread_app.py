@@ -123,8 +123,8 @@ def details():
     try:
         data.append(request.args.get('thread'))
         select_stmt = ('SELECT * FROM Threads WHERE id = %s')
-        print(data)
-        thread = execute_select(select_stmt, data)
+        print(int(data[0]))
+        thread = execute_select(select_stmt, int(data[0]))
     except KeyError:
         answer = {"code": 3, "response": "incorrect request"}
         return jsonify(answer)
