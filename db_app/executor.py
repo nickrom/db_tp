@@ -53,13 +53,17 @@ def execute_insert(query, params):
     connection = __connect_to_db()
     cursor = connection.cursor()
     try:
+        print('WORK INSERT: ')
+        print('old params: ')
+        print(type(params))
+        print(params)
         if not isinstance(params, tuple):
             par = []
             par.append(params)
             params=par
         else:
             pass
-        print('WORK INSERT: ')
+        print('REQUEST:')
         print(query)
         print(params)
         print(type(params))
