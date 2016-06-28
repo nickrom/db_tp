@@ -134,7 +134,7 @@ def create():
     )
     inserted_id = execute_insert(insert_stmt, data)
     upd_stmt = ('UPDATE Threads SET posts = posts + 1 WHERE id = %s')
-    execute_insert(upd_stmt, data[1])
+    execute_insert(upd_stmt, [int(data[1])])
     post = serialize_unicode_post(data, inserted_id)
     answer = {"code": 0, "response": post}
     return jsonify(answer)
