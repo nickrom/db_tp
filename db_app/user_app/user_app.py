@@ -229,10 +229,8 @@ def listFollowers():
     qs = urlparse.urlparse(request.url).query
     req = urlparse.parse_qs(qs)
     data = []
-    count = 0
     try:
         data.append(req["user"][0])
-        count += 1
     except KeyError:
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
@@ -240,7 +238,6 @@ def listFollowers():
     try:
         data.append(int(req["since_id"][0]))
         select_stmt += ' AND id >= %s'
-        count += 1
     except KeyError:
         pass
     try:
@@ -254,6 +251,8 @@ def listFollowers():
     except KeyError:
         pass
     mails = execute_select(select_stmt, data)
+    print('MAILS')
+    print(mails)
     all_users = lists_user_by_mails(mails[0])
     return jsonify({"code": 0, "response": all_users})
 
