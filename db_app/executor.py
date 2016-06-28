@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import MySQLdb
+from collections import Iterable
 
 
 def __connect_to_db():
@@ -11,6 +12,12 @@ def execute_select(query, params):
     connection = __connect_to_db()
     cursor = connection.cursor()
     try:
+        if isinstance(params, Iterable):
+            pass
+        else:
+            par = []
+            par.append(params)
+            params=par
         cursor.execute(query, params)
         result = cursor.fetchall()
     except (Exception, MySQLdb.Error):

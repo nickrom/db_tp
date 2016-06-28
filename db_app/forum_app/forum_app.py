@@ -56,8 +56,8 @@ def details():
     try:
         data.append(request.args.get('forum'))
         select_stmt = ('SELECT * FROM Forums WHERE slug = %s')
-        print(data[0])
-        forum = execute_select(select_stmt, data[0])
+        print(data)
+        forum = execute_select(select_stmt, data)
         if len(forum) == 0 :
             return jsonify({"code":0, "response": []})
     except KeyError:
