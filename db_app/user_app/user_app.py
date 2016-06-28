@@ -7,6 +7,7 @@ import urlparse
 
 app = Blueprint('user_app', __name__)
 
+
 def serialize_user_email(email_user):
     select_stmt = ('SELECT * FROM Users WHERE email = %s')
     user = execute_select(select_stmt, email_user)
@@ -15,13 +16,13 @@ def serialize_user_email(email_user):
 
 
 def serialize_user_id(res):
-    resp = { 'about': res[1],
-        'email': res[3],
-        'id': res[5],
-        'isAnonymous': bool(res[4]),
-        'name': res[2],
-        'username': res[0]
-    }
+    resp = {'about': res[1],
+            'email': res[3],
+            'id': res[5],
+            'isAnonymous': bool(res[4]),
+            'name': res[2],
+            'username': res[0]
+            }
     return resp
 
 
@@ -29,7 +30,7 @@ def lists_user_by_mails(mails):
     resp = []
     for mail in mails:
         user = execute_select('SELECT * FROM Users WHERE email = %s', mail)
-        resp.append(serialize_user(user[0],get_subscriptions(mail), get_followers(mail), get_following(mail)))
+        resp.append(serialize_user(user[0], get_subscriptions(mail), get_followers(mail), get_following(mail)))
     print(resp)
     return resp
 
@@ -68,16 +69,16 @@ def get_following(user):
 
 
 def serialize_user(user, subscriptions, followers, following):
-    resp = { 'about': user[2],
-        'email': user[4],
-        'followers': followers,
-        'following': following,
-        'id': user[0],
-        'isAnonymous': bool(user[5]),
-        'name': user[3],
-        'subscriptions': subscriptions,
-        'username': user[1]
-    }
+    resp = {'about': user[2],
+            'email': user[4],
+            'followers': followers,
+            'following': following,
+            'id': user[0],
+            'isAnonymous': bool(user[5]),
+            'name': user[3],
+            'subscriptions': subscriptions,
+            'username': user[1]
+            }
     return resp
 
 
@@ -102,12 +103,12 @@ def __parse_user_request_data(json_data):
 def create():
     user_data = request.json
     res = __parse_user_request_data(user_data)
-    if(len(res) == 0):
+    if (len(res) == 0):
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
     select_stmt = ('SELECT id, email, about, isAnonymous, name, username FROM Users WHERE email = %s')
     usr = execute_select(select_stmt, res[3])
-    if(len(usr) != 0):
+    if (len(usr) != 0):
         answer = {"code": 5, "response": "User already exists"}
         return jsonify(answer)
     insert_stmt = (
@@ -124,7 +125,7 @@ def create():
 
 @app.route('/details/', methods=['GET'])
 def details():
-    return jsonify({"code":0, "response":[]})
+    return jsonify({"code": 0, "response": []})
     qs = urlparse.urlparse(request.url).query
     mail = urlparse.parse_qs(qs)
     user_mail = mail["user"]
@@ -151,13 +152,13 @@ def __parse_follow_request_data(json_data):
 def follow():
     user_data = request.json
     res = __parse_follow_request_data(user_data)
-    if(len(res) == 0):
+    if (len(res) == 0):
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
     select_stmt = ('SELECT follower_mail,following_mail FROM Followers WHERE follower_mail = %s && following_mail = %s')
     print(res)
     usr = execute_select(select_stmt, res)
-    if(len(usr) != 0):
+    if (len(usr) != 0):
         answer = {"code": 5, "response": "Follower and following already exists"}
         return jsonify(answer)
     insert_stmt = (
@@ -170,7 +171,7 @@ def follow():
 
 @app.route('/listPosts/', methods=['GET'])
 def listPosts():
-    return jsonify({"code":0, "response":[]})
+    return jsonify({"code": 0, "response": []})
     qs = urlparse.urlparse(request.url).query
     req = urlparse.parse_qs(qs)
     data = []
@@ -230,7 +231,7 @@ def update():
 
 @app.route('/listFollowers/', methods=['GET'])
 def listFollowers():
-    return jsonify({"code":0, "response":[]})
+    return jsonify({"code": 0, "response": []})
     qs = urlparse.urlparse(request.url).query
     req = urlparse.parse_qs(qs)
     data = []
@@ -266,7 +267,7 @@ def listFollowers():
 
 @app.route('/listFollowing/', methods=['GET'])
 def listFollowing():
-    return jsonify({"code":0, "response":[]})
+    return jsonify({"code": 0, "response": []})
     qs = urlparse.urlparse(request.url).query
     req = urlparse.parse_qs(qs)
     data = []
@@ -316,8 +317,3 @@ def unfollow():
     print('UNFOLLOW')
     print(data[0])
     return jsonify({"code": 0, "response": serialize_user_email(data[0])})
-
-
-
-
-
