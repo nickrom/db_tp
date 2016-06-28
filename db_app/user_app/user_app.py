@@ -107,7 +107,7 @@ def create():
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
     select_stmt = ('SELECT id, email, about, isAnonymous, name, username FROM Users WHERE email = %s')
-    usr = execute_select(select_stmt, res[3])
+    usr = execute_select(select_stmt, res)
     if (len(usr) != 0):
         answer = {"code": 5, "response": "User already exists"}
         return jsonify(answer)
