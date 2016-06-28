@@ -12,7 +12,7 @@ def execute_select(query, params):
     connection = __connect_to_db()
     cursor = connection.cursor()
     try:
-        if not isinstance(params, tuple):
+        if not isinstance(params, tuple) and not isinstance(params, list):
             par = []
             par.append(params)
             params=par
@@ -57,7 +57,7 @@ def execute_insert(query, params):
         print('old params: ')
         print(type(params))
         print(params)
-        if not isinstance(params, tuple):
+        if not isinstance(params, tuple) and not isinstance(params, list):
             par = []
             par.append(params)
             params=par
