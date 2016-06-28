@@ -109,7 +109,7 @@ def create():
     select_stmt = ('SELECT id, email, about, isAnonymous, name, username FROM Users WHERE email = %s')
     print('CREATE')
     print(select_stmt)
-    print(res)
+    print([res[3]])
     usr = execute_select(select_stmt, res[3])
     if (len(usr) != 0):
         answer = {"code": 5, "response": "User already exists"}
