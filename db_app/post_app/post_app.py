@@ -5,6 +5,7 @@ from db_app.executor import *
 import urlparse
 import db_app.forum_app.forum_app
 import db_app.thread_app.thread_app
+from db_app.user_app.user_app import serialize_user_email
 
 app = Blueprint('post_app', __name__)
 
@@ -239,13 +240,13 @@ def remove():
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
     upd_stmt = ('UPDATE Posts SET isDeleted = 1 WHERE id = %s')
-    execute_insert(upd_stmt, rem_data[0])
+    execute_insert(upd_stmt, rem_data)
     select_stmt = 'SELECT thread FROM Posts WHERE id = %s'
-    current_thread = execute_select(select_stmt, rem_data[0])
+    current_thread = execute_select(select_stmt, rem_data)
     print(current_thread)
     upd_stmt = 'UPDATE Threads SET posts = posts - 1 WHERE id = %s '
     execute_insert(upd_stmt, current_thread[0][0])
-    answer = {"code": 0, "response": rem_data[0]}
+    answer = {"code": 0, "response": {"post": rem_data[0]}}
     return jsonify(answer)
 
 
@@ -259,13 +260,13 @@ def restore():
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
     upd_stmt = ('UPDATE Posts SET isDeleted = 0 WHERE id = %s')
-    execute_insert(upd_stmt, rem_data[0])
+    execute_insert(upd_stmt, rem_data)
     select_stmt = 'SELECT thread FROM Posts WHERE id = %s'
-    current_thread = execute_select(select_stmt, rem_data[0])
+    current_thread = execute_select(select_stmt, rem_data)
     print(current_thread)
     upd_stmt = 'UPDATE Threads SET posts = posts + 1 WHERE id = %s '
     execute_insert(upd_stmt, current_thread[0])
-    answer = {"code": 0, "response": rem_data[0]}
+    answer = {"code": 0, "response": {"post": rem_data[0]}}
     return jsonify(answer)
 
 

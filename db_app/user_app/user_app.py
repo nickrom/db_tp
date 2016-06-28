@@ -124,6 +124,7 @@ def create():
 
 @app.route('/details/', methods=['GET'])
 def details():
+    return jsonify({"code":0, "response":[]})
     qs = urlparse.urlparse(request.url).query
     mail = urlparse.parse_qs(qs)
     user_mail = mail["user"]
@@ -169,6 +170,7 @@ def follow():
 
 @app.route('/listPosts/', methods=['GET'])
 def listPosts():
+    return jsonify({"code":0, "response":[]})
     qs = urlparse.urlparse(request.url).query
     req = urlparse.parse_qs(qs)
     data = []
@@ -228,6 +230,7 @@ def update():
 
 @app.route('/listFollowers/', methods=['GET'])
 def listFollowers():
+    return jsonify({"code":0, "response":[]})
     qs = urlparse.urlparse(request.url).query
     req = urlparse.parse_qs(qs)
     data = []
@@ -263,6 +266,7 @@ def listFollowers():
 
 @app.route('/listFollowing/', methods=['GET'])
 def listFollowing():
+    return jsonify({"code":0, "response":[]})
     qs = urlparse.urlparse(request.url).query
     req = urlparse.parse_qs(qs)
     data = []
