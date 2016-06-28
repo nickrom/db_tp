@@ -215,6 +215,8 @@ def update():
     execute_insert(update_stmt, res)
     select_stmt = ('SELECT * FROM Users WHERE email = %s')
     resp = execute_select(select_stmt, res[2])
+    if len(resp) == 0:
+        return jsonify({"code": 0, "response": []})
     sub = get_subscriptions(resp[0][4])
     following = get_following(resp[0][4])
     followers = get_followers(resp[0][4])
@@ -289,6 +291,8 @@ def listFollowing():
     except KeyError:
         pass
     mails = execute_select(select_stmt, data)
+    if len(mails) == 0:
+        return jsonify({"code": 0, "response": []})
     all_users = lists_user_by_mails(mails[0])
     return jsonify({"code": 0, "response": all_users})
 
