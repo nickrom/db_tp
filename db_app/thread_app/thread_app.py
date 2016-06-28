@@ -172,8 +172,7 @@ def list():
         select_stmt += ' ORDER BY date ' + 'DESC'
         pass
     try:
-        data.append(req["limit"][0])
-        data[2]=int(data[2])
+        data.append(int(req["limit"][0]))
         select_stmt += ' LIMIT %s '
     except KeyError:
         pass
