@@ -56,6 +56,8 @@ def details():
         data.append(request.args.get('forum'))
         select_stmt = ('SELECT * FROM Forums WHERE slug = %s')
         forum = execute_select(select_stmt, data[0])
+        if len(forum) == 0 :
+            return jsonify({"code":0, "response": []})
     except KeyError:
         answer = {"code": 3, "response": "incorrect request"}
         return jsonify(answer)
@@ -101,6 +103,8 @@ def listPosts():
     print(select_stmt)
     print(data)
     posts = execute_select(select_stmt, data)
+    if len(posts) == 0:
+        return jsonify({"code": 0, "response": []})
     print(posts)
     try:
         list1 = request.args.getlist('related')
@@ -108,8 +112,6 @@ def listPosts():
         list1 = []
         return jsonify({"code": 0, "response": posts_to_list(posts)})
     resp = []
-    if len(posts) == 0:
-        return jsonify({"code": 0, "response": []})
     for post in posts:
         thread_info = post[2]
         forum_info = post[5]
