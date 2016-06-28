@@ -194,12 +194,12 @@ def list():
     limit = 0
     forum = 0
     try:
-        data.append(req["thread"])
+        data.append(int(req["thread"][0]))
         select_stmt = ('SELECT * FROM Posts WHERE thread = %s')
         print('thread')
     except KeyError:
         try:
-            data.append(req["forum"])
+            data.append(req["forum"][0])
             print('forum')
             select_stmt = ('SELECT * FROM Posts WHERE forum = %s')
             forum = 1
@@ -207,7 +207,7 @@ def list():
             answer = {"code": 3, "response": "incorrect request"}
             return jsonify(answer)
     try:
-        data.append(req["since"])
+        data.append(req["since"][0])
         select_stmt += ' AND date > %s '
     except KeyError:
         pass
@@ -218,19 +218,12 @@ def list():
         select_stmt += ' ORDER BY date ' + 'DESC'
         pass
     try:
-        data.append(req["limit"])
+        data.append(int(req["limit"][0]))
         select_stmt += ' LIMIT %s '
         limit = 1
     except KeyError:
         pass
-    req_data = []
-    for d in data:
-        req_data.append(d[0])
-    if forum == 0:
-        req_data[0] = int(req_data[0])
-    if limit == 1:
-        req_data[2] = int(req_data[2])
-    posts = execute_select(select_stmt, tuple(req_data))
+    posts = execute_select(select_stmt, tuple(data))
     resp = posts_to_list(posts)
     answer = {"code": 0, "response": resp}
     return jsonify(answer)

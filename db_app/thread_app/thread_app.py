@@ -130,6 +130,8 @@ def details():
         answer = {"code": 1, "response": "incorrect related"}
         return jsonify(answer)
     list = request.args.getlist('related')
+    if len(thread) == 0:
+        return jsonify({"code": 0, "response": []})
     user_info = thread[0][4]
     forum_info = thread[0][1]
     for related in list:
@@ -225,6 +227,8 @@ def listPosts():
     print(select_stmt)
     print(data)
     posts = execute_select(select_stmt, data)
+    if len(posts) == 0:
+        return jsonify({"code": 0, "response": []})
     if sort in {'tree', 'parent_tree'}:
         cats = {}
         for x in posts:
