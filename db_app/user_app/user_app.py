@@ -12,7 +12,10 @@ def serialize_user_email(email_user):
     print('Serialize_by_EMAIL')
     select_stmt = ('SELECT * FROM Users WHERE email = %s')
     print(email_user)
-    user = execute_select(select_stmt, [email_user])
+    if len(email_user) != 1:
+        user = execute_select(select_stmt, [email_user])
+    else:
+        user = execute_select(select_stmt, email_user)
     user = user[0]
     return serialize_user(user, get_subscriptions(email_user), get_followers(email_user), get_following(email_user))
 
@@ -39,7 +42,9 @@ def lists_user_by_mails(mails):
 
 def get_subscriptions(user):
     select_stmt = ('SELECT thread FROM Subscribe WHERE user = %s')
-    subscriptions = execute_select(select_stmt, [user])
+    if len(user) != 1:
+        subscriptions = execute_select(select_stmt, [user])
+    subscriptions = execute_select(select_stmt, user)
     if (len(subscriptions) == 0):
         return []
     res = []
@@ -50,7 +55,9 @@ def get_subscriptions(user):
 
 def get_followers(user):
     select_stmt = ('SELECT follower_mail FROM Followers WHERE following_mail = %s')
-    followers = execute_select(select_stmt, [user])
+    if len(user) != 1:
+        followers = execute_select(select_stmt, [user])
+    followers = execute_select(select_stmt, user)
     if (len(followers) == 0):
         return []
     res = []
@@ -61,7 +68,9 @@ def get_followers(user):
 
 def get_following(user):
     select_stmt = ('SELECT following_mail FROM Followers WHERE follower_mail = %s')
-    followings = execute_select(select_stmt, [user])
+    if len(user) != 1:
+        followings = execute_select(select_stmt, [user])
+    followings = execute_select(select_stmt, user)
     if (len(followings) == 0):
         return []
     res = []
