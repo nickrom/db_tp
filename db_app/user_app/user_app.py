@@ -9,8 +9,10 @@ app = Blueprint('user_app', __name__)
 
 
 def serialize_user_email(email_user):
+    print('Serialize_by_EMAIL')
     select_stmt = ('SELECT * FROM Users WHERE email = %s')
-    user = execute_select(select_stmt, email_user)
+    print(email_user)
+    user = execute_select(select_stmt, [email_user])
     user = user[0]
     return serialize_user(user, get_subscriptions(email_user), get_followers(email_user), get_following(email_user))
 
