@@ -16,6 +16,8 @@ def serialize_user_email(email_user):
         user = execute_select(select_stmt, [email_user])
     else:
         user = execute_select(select_stmt, email_user)
+    if len(user) == 0:
+        return {}
     user = user[0]
     return serialize_user(user, get_subscriptions(email_user), get_followers(email_user), get_following(email_user))
 
@@ -35,6 +37,8 @@ def lists_user_by_mails(mails):
     resp = []
     for mail in mails:
         user = execute_select('SELECT * FROM Users WHERE email = %s', mail)
+        if len(user) == 0:
+            return []
         resp.append(serialize_user(user[0], get_subscriptions(mail), get_followers(mail), get_following(mail)))
     print(resp)
     return resp

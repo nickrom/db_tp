@@ -124,10 +124,12 @@ def listPosts():
         for related in list1:
             if related == 'thread':
                 thread = execute_select('SELECT * FROM Threads WHERE id = %s', int(thread_info))
-                thread_info = serialize_thread(thread[0], thread[0][4], thread[0][1])
+                if len(thread) != 0:
+                    thread_info = serialize_thread(thread[0], thread[0][4], thread[0][1])
             elif related == 'forum':
                 forum = execute_select('SELECT * FROM Forums WHERE slug = %s', forum_info)
-                forum_info = serialize_forum(forum[0])
+                if len(forum) != 0:
+                    forum_info = serialize_forum(forum[0])
             elif related == 'user':
                 user_info = serialize_user_email(user_info)
         post = serialize_post(post,user_info,forum_info,thread_info)
@@ -181,7 +183,8 @@ def listThreads():
         for related in list:
             if related == 'forum':
                 forum = execute_select('SELECT * FROM Forums WHERE slug = %s', forum_info)
-                forum_info = serialize_forum(forum[0])
+                if len(forum) != 0:
+                    forum_info = serialize_forum(forum[0])
             elif related == 'user':
                 user_info = serialize_user_email(user_info)
         thread = serialize_thread(thread,user_info,forum_info)
