@@ -119,10 +119,12 @@ def create():
 @app.route('/details/', methods=['GET'])
 def details():
     data = []
+    print('Thread/details')
     try:
         data.append(request.args.get('thread'))
         select_stmt = ('SELECT * FROM Threads WHERE id = %s')
-        thread = execute_select(select_stmt, data[0])
+        print(data)
+        thread = execute_select(select_stmt, data)
     except KeyError:
         answer = {"code": 3, "response": "incorrect request"}
         return jsonify(answer)
