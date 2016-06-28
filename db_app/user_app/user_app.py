@@ -39,7 +39,7 @@ def lists_user_by_mails(mails):
 
 def get_subscriptions(user):
     select_stmt = ('SELECT thread FROM Subscribe WHERE user = %s')
-    subscriptions = execute_select(select_stmt, user)
+    subscriptions = execute_select(select_stmt, [user])
     if (len(subscriptions) == 0):
         return []
     res = []
@@ -50,7 +50,7 @@ def get_subscriptions(user):
 
 def get_followers(user):
     select_stmt = ('SELECT follower_mail FROM Followers WHERE following_mail = %s')
-    followers = execute_select(select_stmt, user)
+    followers = execute_select(select_stmt, [user])
     if (len(followers) == 0):
         return []
     res = []
@@ -61,7 +61,7 @@ def get_followers(user):
 
 def get_following(user):
     select_stmt = ('SELECT following_mail FROM Followers WHERE follower_mail = %s')
-    followings = execute_select(select_stmt, user)
+    followings = execute_select(select_stmt, [user])
     if (len(followings) == 0):
         return []
     res = []
