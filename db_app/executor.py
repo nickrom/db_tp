@@ -12,12 +12,12 @@ def execute_select(query, params):
     connection = __connect_to_db()
     cursor = connection.cursor()
     try:
-        if isinstance(params, Iterable):
-            pass
-        else:
+        if isinstance(params, str):
             par = []
             par.append(params)
             params=par
+        else:
+            pass
         print('WORK EXECUTE: ')
         print(query)
         print(params)
