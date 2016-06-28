@@ -18,6 +18,10 @@ def execute_select(query, params):
             par = []
             par.append(params)
             params=par
+        print('WORK EXECUTE: ')
+        print(query)
+        print(params)
+        print('_____________')
         cursor.execute(query, params)
         result = cursor.fetchall()
     except (Exception, MySQLdb.Error):
