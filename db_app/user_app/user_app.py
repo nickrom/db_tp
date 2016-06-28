@@ -110,7 +110,7 @@ def create():
     print('CREATE')
     print(select_stmt)
     print([res[3]])
-    usr = execute_select(select_stmt, res[3])
+    usr = execute_select(select_stmt, [res[3]])
     if (len(usr) != 0):
         answer = {"code": 5, "response": "User already exists"}
         return jsonify(answer)
