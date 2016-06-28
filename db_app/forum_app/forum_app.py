@@ -200,7 +200,7 @@ def listUsers():
         return jsonify(answer)
     select_stmt = ('SELECT * FROM Users WHERE email IN (SELECT DISTINCT user FROM Posts WHERE forum = %s)')
     try:
-        data.append(req["since"][0])
+        data.append(int(req["since_id"][0]))
         select_stmt += ' AND date > %s '
     except KeyError:
         pass
