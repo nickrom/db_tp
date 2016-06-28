@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import MySQLdb
 from collections import Iterable
+from apt.package import unicode
 
 
 def __connect_to_db():
@@ -12,7 +13,7 @@ def execute_select(query, params):
     connection = __connect_to_db()
     cursor = connection.cursor()
     try:
-        if type(params) == str:
+        if type(params) in (str,unicode,int):
             par = []
             par.append(params)
             params=par
