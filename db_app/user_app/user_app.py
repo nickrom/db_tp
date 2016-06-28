@@ -253,6 +253,8 @@ def listFollowers():
     mails = execute_select(select_stmt, data)
     print('MAILS')
     print(mails)
+    if len(mails) == 0:
+        return jsonify({"code": 0, "response": []})
     all_users = lists_user_by_mails(mails[0])
     return jsonify({"code": 0, "response": all_users})
 
