@@ -13,4 +13,5 @@ app.register_blueprint(forum_app, url_prefix=API_PREFIX + '/forum')
 app.register_blueprint(thread_app, url_prefix=API_PREFIX + '/thread')
 app.register_blueprint(post_app, url_prefix=API_PREFIX + '/post')
 
-app.run()
+if __name__ == "__main__":
+    app.run()
