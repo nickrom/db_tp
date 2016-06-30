@@ -3,8 +3,9 @@ from flask import Blueprint, request, jsonify
 from db_app.executor import *
 import urlparse
 from db_app.post_app.post_app import posts_to_list, serialize_post
-from db_app.thread_app.thread_app import serialize_thread,threads_to_list
-from db_app.user_app.user_app import serialize_user_email, serialize_user, get_following,get_followers,get_subscriptions
+from db_app.thread_app.thread_app import serialize_thread, threads_to_list
+from db_app.user_app.user_app import serialize_user_email, serialize_user, get_following, get_followers, \
+    get_subscriptions
 
 app = Blueprint('forum_app', __name__)
 
@@ -29,7 +30,6 @@ def serialize_forum_user(forum, user):
     return json
 
 
-
 @app.route('/create/', methods=['POST'])
 def create():
     data = request.get_json()
@@ -40,10 +40,10 @@ def create():
         forum_data.append(data["user"])
         insert_stmt = ('INSERT INTO Forums (name, slug, user) VALUES (%s, %s, %s)')
         id = execute_insert(insert_stmt, forum_data)
-        forum_data.insert(0,id)
+        forum_data.insert(0, id)
         forum = serialize_forum(forum_data)
         answer = {"code": 0, "response": forum}
-    except (KeyError,Exception):
+    except (KeyError, Exception):
         answer = {"code": 2, "response": "invalid json"}
     return jsonify(answer)
 
@@ -55,8 +55,8 @@ def details():
         data.append(request.args.get('forum'))
         select_stmt = ('SELECT * FROM Forums WHERE slug = %s')
         forum = execute_select(select_stmt, data)
-        if len(forum) == 0 :
-            return jsonify({"code":0, "response": []})
+        if len(forum) == 0:
+            return jsonify({"code": 0, "response": []})
     except KeyError:
         answer = {"code": 3, "response": "incorrect request"}
         return jsonify(answer)
@@ -121,14 +121,13 @@ def listPosts():
                     forum_info = serialize_forum(forum[0])
             elif related == 'user':
                 user_info = serialize_user_email(user_info)
-        post = serialize_post(post,user_info,forum_info,thread_info)
+        post = serialize_post(post, user_info, forum_info, thread_info)
         resp.append(post)
     if len(resp) > 0:
         answer = {"code": 0, "response": resp}
         return jsonify(answer)
     else:
         return jsonify({"code": 0, "response": posts_to_list(posts)})
-
 
 
 @app.route('/listThreads/', methods=['GET'])
@@ -176,7 +175,7 @@ def listThreads():
                     forum_info = serialize_forum(forum[0])
             elif related == 'user':
                 user_info = serialize_user_email(user_info)
-        thread = serialize_thread(thread,user_info,forum_info)
+        thread = serialize_thread(thread, user_info, forum_info)
         resp.append(thread)
     if len(resp) > 0:
         answer = {"code": 0, "response": resp}
@@ -198,10 +197,10 @@ def listUsers():
     select_stmt = ('SELECT * FROM Users as u JOIN Posts as p ON u.email=p.user WHERE p.forum = %s')
     try:
         data.append(int(req["since_id"][0]))
-        select_stmt += ' AND id >= %s '
-	select_stmt +=' GROUP BY u.email'
+        select_stmt += ' AND u.id >= %s '
+        select_stmt += ' GROUP BY u.email'
     except KeyError:
-	select_stmt +=' GROUP BY u.email'
+        select_stmt += ' GROUP BY u.email'
         pass
     try:
         select_stmt += ' ORDER BY name ' + req["order"][0]
@@ -222,7 +221,6 @@ def listUsers():
 def users_to_list(users):
     resp = []
     for user in users:
-        resp.append(serialize_user(user,get_subscriptions(user[4]), get_followers(user[4]), get_following(user[4])))
+        resp.append(serialize_user(user, get_subscriptions(user[4]), get_followers(user[4]), get_following(user[4])))
     print(resp)
     return resp
-

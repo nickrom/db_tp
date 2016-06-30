@@ -191,7 +191,6 @@ def list():
 
 @app.route('/listPosts/', methods=['GET'])
 def listPosts():
-    return jsonify({"code":0, "response":"ok"})
     qs = urlparse.urlparse(request.url).query
     req = urlparse.parse_qs(qs)
     data = []
@@ -300,7 +299,7 @@ def restore():
     execute_insert(upd_stmt, rem_data[0])
     num = execute_select('SELECT COUNT(*) FROM Posts WHERE thread = %s', rem_data[0])
     upd_stmt = ('UPDATE Threads SET isDeleted = 0, posts = %s WHERE id = %s')
-    ans = execute_insert(upd_stmt, [len(num), rem_data[0]])
+    ans = execute_insert(upd_stmt, [num, rem_data[0]])
     print('restore')
     print(rem_data[0])
     print(num)
