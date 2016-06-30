@@ -30,7 +30,7 @@ def execute_select(query, params):
         raise
     finally:
         cursor.close()
-        connection.close()
+	connection.close()
     return result
 
 
@@ -45,7 +45,6 @@ def execute_select1(query):
         raise
     finally:
         cursor.close()
-        connection.close()
     return result
 
 

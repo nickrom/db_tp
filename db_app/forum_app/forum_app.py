@@ -33,7 +33,6 @@ def serialize_forum_user(forum, user):
 @app.route('/create/', methods=['POST'])
 def create():
     data = request.get_json()
-    print(data)
     forum_data = []
     try:
         forum_data.append(data["name"])
@@ -52,11 +51,9 @@ def create():
 @app.route('/details/', methods=['GET'])
 def details():
     data = []
-    print('Forum/details')
     try:
         data.append(request.args.get('forum'))
         select_stmt = ('SELECT * FROM Forums WHERE slug = %s')
-        print(data)
         forum = execute_select(select_stmt, data)
         if len(forum) == 0 :
             return jsonify({"code":0, "response": []})
@@ -68,11 +65,7 @@ def details():
         return jsonify(answer)
     if request.args.get('related') == 'user':
         user_info = serialize_user_email(forum[0][3])
-        print(forum[0])
-        print(user_info)
-        print(serialize_forum_user(forum[0], user_info))
         answer = {"code": 0, "response": serialize_forum_user(forum[0], user_info)}
-        print(answer)
         return jsonify(answer)
     answer = {"code": 0, "response": serialize_forum(forum[0])}
     return jsonify(answer)
@@ -104,13 +97,9 @@ def listPosts():
         select_stmt += ' LIMIT %s'
     except KeyError:
         pass
-    print('listsPostsss')
-    print(select_stmt)
-    print(data)
     posts = execute_select(select_stmt, data)
     if len(posts) == 0:
         return jsonify({"code": 0, "response": []})
-    print(posts)
     try:
         list1 = request.args.getlist('related')
     except KeyError:
@@ -206,11 +195,13 @@ def listUsers():
     except KeyError:
         answer = {"code": 3, "response": "invalid json"}
         return jsonify(answer)
-    select_stmt = ('SELECT * FROM Users WHERE email IN (SELECT DISTINCT user FROM Posts WHERE forum = %s)')
+    select_stmt = ('SELECT * FROM Users as u JOIN Posts as p ON u.email=p.user WHERE p.forum = %s')
     try:
         data.append(int(req["since_id"][0]))
         select_stmt += ' AND id >= %s '
+	select_stmt +=' GROUP BY u.email'
     except KeyError:
+	select_stmt +=' GROUP BY u.email'
         pass
     try:
         select_stmt += ' ORDER BY name ' + req["order"][0]

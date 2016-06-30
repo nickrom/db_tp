@@ -241,11 +241,8 @@ def remove():
         return jsonify(answer)
     upd_stmt = ('UPDATE Posts SET isDeleted = 1 WHERE id = %s')
     execute_insert(upd_stmt, rem_data)
-    select_stmt = 'SELECT thread FROM Posts WHERE id = %s'
-    current_thread = execute_select(select_stmt, rem_data)
-    print(current_thread)
-    upd_stmt = 'UPDATE Threads SET posts = posts - 1 WHERE id = %s '
-    execute_insert(upd_stmt, current_thread[0][0])
+    upd_stmt = 'UPDATE Threads as t LEFT JOIN Posts as p ON p.thread=t.id SET t.posts = t.posts - 1 WHERE p.id = %s '
+    execute_insert(upd_stmt, rem_data)
     answer = {"code": 0, "response": {"post": rem_data[0]}}
     return jsonify(answer)
 
@@ -261,11 +258,8 @@ def restore():
         return jsonify(answer)
     upd_stmt = ('UPDATE Posts SET isDeleted = 0 WHERE id = %s')
     execute_insert(upd_stmt, rem_data)
-    select_stmt = 'SELECT thread FROM Posts WHERE id = %s'
-    current_thread = execute_select(select_stmt, rem_data)
-    print(current_thread)
-    upd_stmt = 'UPDATE Threads SET posts = posts + 1 WHERE id = %s '
-    execute_insert(upd_stmt, current_thread[0])
+    upd_stmt = 'UPDATE Threads as t LEFT JOIN Posts as p ON p.thread=t.id SET t.posts = t.posts + 1 WHERE p.id = %s '
+    execute_insert(upd_stmt, rem_data)
     answer = {"code": 0, "response": {"post": rem_data[0]}}
     return jsonify(answer)
 
@@ -299,13 +293,10 @@ def vote():
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
     if(vote_data[0] == 1):
-        upd_stmt = ('UPDATE Posts SET likes = likes + 1 WHERE id = %s')
-        upd_points = 'UPDATE Posts SET points = points + 1 WHERE id = %s'
+        upd_stmt = 'UPDATE Posts SET likes = likes + 1, points = points + 1 WHERE id = %s'
     if(vote_data[0] == -1):
-        upd_stmt = ('UPDATE Posts SET dislikes = dislikes + 1 WHERE id = %s')
-        upd_points = 'UPDATE Posts SET points = points - 1 WHERE id = %s'
+        upd_stmt = 'UPDATE Posts SET dislikes = dislikes + 1, points = points -1 WHERE id = %s'
     upd_id = execute_insert(upd_stmt, vote_data[1])
-    execute_insert(upd_points, vote_data[1])
     answer = {"code": 0, "response": upd_id}
     return jsonify(answer)
 
