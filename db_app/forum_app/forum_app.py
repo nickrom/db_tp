@@ -163,7 +163,6 @@ def listThreads():
         return jsonify({"code": 0, "response": threads_to_list(threads)})
     resp = []
     if len(threads) == 0:
-        print('IS EMPTY!!!!!!')
         return jsonify({"code": 0, "response": []})
     for thread in threads:
         forum_info = thread[1]
@@ -213,7 +212,6 @@ def listUsers():
     except KeyError:
         pass
     users = execute_select(select_stmt, data)
-    print(users)
     answer = {"code": 0, "response": users_to_list(users)}
     return jsonify(answer)
 
@@ -222,5 +220,4 @@ def users_to_list(users):
     resp = []
     for user in users:
         resp.append(serialize_user(user, get_subscriptions(user[4]), get_followers(user[4]), get_following(user[4])))
-    print(resp)
     return resp

@@ -14,7 +14,6 @@ def posts_to_list(posts):
     resp = []
     for post in posts:
         resp.append(serialize_post1(post[1:], post[0]))
-    print(resp)
     return resp
 
 
@@ -143,8 +142,6 @@ def create():
 def serialize_thread1(name):
     select_stmt = ('SELECT * FROM Threads WHERE id = %s')
     thread = execute_select(select_stmt, name)
-    print('ERRRR')
-    print(thread)
     if (thread):
         return db_app.thread_app.thread_app.serialize_thread(thread[0], thread[0][4], thread[0][1])
     return name
@@ -180,9 +177,6 @@ def details():
             forum_info = db_app.thread_app.thread_app.serialize_forum1(post[0][5])
         if related == 'thread':
             thread_info = serialize_thread1(post[0][2])
-    print("LLLLO")
-    print(serialize_post(post[0], user_info, forum_info, thread_info))
-    print(thread_info)
     answer = jsonify({"code": 0, "response": serialize_post(post[0], user_info, forum_info, thread_info)})
     return answer
 
@@ -197,11 +191,9 @@ def list():
     try:
         data.append(int(req["thread"][0]))
         select_stmt = ('SELECT * FROM Posts WHERE thread = %s')
-        print('thread')
     except KeyError:
         try:
             data.append(req["forum"][0])
-            print('forum')
             select_stmt = ('SELECT * FROM Posts WHERE forum = %s')
             forum = 1
         except KeyError:

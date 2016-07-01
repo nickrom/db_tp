@@ -14,7 +14,6 @@ def threads_to_list(posts):
     resp = []
     for post in posts:
         resp.append(serialize_thread(post, post[4], post[1]))
-    print(resp)
     return resp
 
 
@@ -119,11 +118,9 @@ def create():
 @app.route('/details/', methods=['GET'])
 def details():
     data = []
-    print('Thread/details')
     try:
         data.append(request.args.get('thread'))
         select_stmt = ('SELECT * FROM Threads WHERE id = %s')
-        print(int(data[0]))
         thread = execute_select(select_stmt, [int(data[0])])
     except KeyError:
         answer = {"code": 3, "response": "incorrect request"}
@@ -142,10 +139,7 @@ def details():
         elif related == 'forum':
             forum_info = serialize_forum1(thread[0][1])
         elif related == 'thread':
-            print('Privet')
             return jsonify({"code":3, "response": "incorrect related"})
-    print("Details")
-    print(serialize_thread(thread[0], user_info, forum_info))
     answer = jsonify({"code": 0, "response": serialize_thread(thread[0], user_info, forum_info)})
     return answer
 
@@ -180,11 +174,7 @@ def list():
         select_stmt += ' LIMIT %s '
     except KeyError:
         pass
-    print('THREAD LIST')
-    print(select_stmt)
-    print(data)
     threads = execute_select(select_stmt, data)
-    print(threads)
     answer = {"code": 0, "response": threads_to_list(threads)}
     return jsonify(answer)
 
@@ -226,15 +216,12 @@ def listPosts():
         if limit:
             select_stmt += ' LIMIT %s'
             data.append(limit)
-    print(select_stmt)
-    print(data)
     posts = execute_select(select_stmt, data)
     if len(posts) == 0:
         return jsonify({"code": 0, "response": []})
     if sort in {'tree', 'parent_tree'}:
         cats = {}
         for x in posts:
-            print(x)
             if x[6] is None:
                 try:
                     cats['root'].append(x)
@@ -300,9 +287,6 @@ def restore():
     num = execute_select('SELECT COUNT(*) FROM Posts WHERE thread = %s', rem_data[0])
     upd_stmt = ('UPDATE Threads SET isDeleted = 0, posts = %s WHERE id = %s')
     ans = execute_insert(upd_stmt, [num, rem_data[0]])
-    print('restore')
-    print(rem_data[0])
-    print(num)
     answer = {"code": 0, "response": rem_data[0]}
     return jsonify(answer)
 
@@ -382,7 +366,6 @@ def subscribe():
     except KeyError:
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
-    print(sub_data)
     ins_stmt = 'INSERT INTO Subscribe (user, thread) VALUES (%s, %s)'
     ins_id = execute_insert(ins_stmt, sub_data)
     answer = {"code": 0, "response": {"thread": sub_data[1], "user": sub_data[0]}}

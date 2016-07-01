@@ -9,9 +9,7 @@ app = Blueprint('user_app', __name__)
 
 
 def serialize_user_email(email_user):
-    print('Serialize_by_EMAIL')
     select_stmt = ('SELECT * FROM Users WHERE email = %s')
-    print(email_user)
     if len(email_user) != 1:
         user = execute_select(select_stmt, [email_user])
     else:
@@ -40,7 +38,6 @@ def lists_user_by_mails(mails):
         if len(user) == 0:
             return []
         resp.append(serialize_user(user[0], get_subscriptions(mail), get_followers(mail), get_following(mail)))
-    print(resp)
     return resp
 
 
@@ -125,10 +122,6 @@ def create():
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
     select_stmt = ('SELECT id, email, about, isAnonymous, name, username FROM Users WHERE email = %s')
-    print('CREATE')
-    print(select_stmt)
-    print([res[3]])
-    print(res)
     usr = execute_select(select_stmt, [res[3]])
     if (len(usr) != 0):
         answer = {"code": 5, "response": "User already exists"}
@@ -150,8 +143,6 @@ def details():
     qs = urlparse.urlparse(request.url).query
     mail = urlparse.parse_qs(qs)
     user_mail = mail["user"]
-    print('DETAILS')
-    print(serialize_user_email(user_mail))
     return jsonify({"code": 0, "response": serialize_user_email(user_mail)})
 
 
@@ -177,7 +168,6 @@ def follow():
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
     select_stmt = ('SELECT follower_mail,following_mail FROM Followers WHERE follower_mail = %s && following_mail = %s')
-    print(res)
     usr = execute_select(select_stmt, res)
     if (len(usr) != 0):
         answer = {"code": 5, "response": "Follower and following already exists"}
@@ -232,9 +222,6 @@ def update():
         answer = {"code": 2, "response": "invalid json"}
         return jsonify(answer)
     update_stmt = ('UPDATE Users SET about = %s, name = %s WHERE email = %s')
-    print('UPDATE USER')
-    print(update_stmt)
-    print(res)
     execute_insert(update_stmt, res)
     select_stmt = ('SELECT * FROM Users WHERE email = %s')
     resp = execute_select(select_stmt, res[2])
@@ -243,8 +230,6 @@ def update():
     sub = get_subscriptions(resp[0][4])
     following = get_following(resp[0][4])
     followers = get_followers(resp[0][4])
-    print('UPD USER')
-    print(serialize_user(resp[0], sub, following, followers))
     answer = jsonify({"code": 0, "response": serialize_user(resp[0], sub, following, followers)})
     return answer
 
@@ -276,8 +261,6 @@ def listFollowers():
     except KeyError:
         pass
     mails = execute_select(select_stmt, data)
-    print('MAILS')
-    print(mails)
     if len(mails) == 0:
         return jsonify({"code": 0, "response": []})
     all_users = lists_user_by_mails(mails[0])
@@ -332,6 +315,4 @@ def unfollow():
         return jsonify(answer)
     delete_stmt = ('DELETE FROM Followers WHERE follower_mail = % s AND following_mail = % s')
     execute_insert(delete_stmt, data)
-    print('UNFOLLOW')
-    print(data[0])
     return jsonify({"code": 0, "response": serialize_user_email(data[0])})

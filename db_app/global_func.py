@@ -23,5 +23,4 @@ def posts_to_list(posts):
     resp = []
     for post in posts:
         resp.append(serialize_post1(post[1:], post[0]))
-    print(resp)
     return resp
